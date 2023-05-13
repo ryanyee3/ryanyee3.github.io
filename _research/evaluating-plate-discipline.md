@@ -8,4 +8,4 @@ We introduce a three-step framework to determine, on a per-pitch basis, whether 
 
 [\[preprint\]](https://arxiv.org/abs/2305.05752)
 [\[code\]](https://github.com/ryanyee3/plate_discipline_code)
-[\[rshinyapp\]](https://ryanyee3.shinyapps.io/batter_evaluation_app/)
+[\[rshiny app\]](https://ryanyee3.shinyapps.io/batter_evaluation_app/)
