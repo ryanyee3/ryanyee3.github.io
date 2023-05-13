@@ -14,6 +14,10 @@ References I've found useful.
 
 [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 
+## Data
+
+[Sports Dataverse](https://www.sportsdataverse.org)
+
 ### Making this website
 
 [Minimal Mistakes Guide](https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/) \\
