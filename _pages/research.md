@@ -1,6 +1,8 @@
 ---
 title: "Research"
+# layout: collection
 permalink: /research/
+collection: research
 classes: wide
 ---
 
@@ -13,5 +15,4 @@ I will put things research related here.
  Ryan Yee and Sameer Deshpande.
  arXiv:2305.05752. \\
 [\[preprint\]](https://arxiv.org/abs/2305.05752)
-[\[code\]](https://github.com/ryanyee3/plate_discipline_code)
-[\[rshinyapp\]](https://ryanyee3.shinyapps.io/batter_evaluation_app/)
+[\[More Info\]](../_research/evaluating-plate-discipline.md)

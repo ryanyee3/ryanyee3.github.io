@@ -1,6 +1,5 @@
 ---
 title: "Interpreting Residual Plots"
-author: "Ryan Yee"
 date: "2023-05-12"
 output:
   md_document:
