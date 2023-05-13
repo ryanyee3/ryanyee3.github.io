@@ -6,9 +6,6 @@ collection: research
 classes: wide
 ---
 
-I will put things research related here.
-
-
 ## Pre-prints
 
  * **Evaluating plate discipline in Major League Baseball with Bayesian Additive Regression Trees** (2023).
