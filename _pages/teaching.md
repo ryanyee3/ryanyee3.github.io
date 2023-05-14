@@ -8,7 +8,7 @@ classes: wide
 
 ## University of Wisconsin--Madison
 
-I was one of six TAs recognized with by the Statistics department in 2021-2022 academic year for [outstanding performance](https://stat.wisc.edu/2022/06/27/uw-department-of-statistics-teaching-assistants-awards/).
+I was one of six TAs recognized by the Statistics department in 2021-2022 academic year for [outstanding performance](https://stat.wisc.edu/2022/06/27/uw-department-of-statistics-teaching-assistants-awards/).
 I have TA'd for the following courses:
 
 * STAT 324: Introductory Applied Statistics for Engineers (Summer 2023)
