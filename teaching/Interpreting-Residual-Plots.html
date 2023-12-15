@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Interpreting residual plots from linear regression can be difficult tolearn because it is more of an art than a skill. Let’s walk through someexamples where we generate data that violates an assumptio">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Interpreting Residual Plots">
+<meta property="og:url" content="http://example.com/teaching/Interpreting-Residual-Plots.html">
+<meta property="og:site_name" content="Ryan Yee">
+<meta property="og:description" content="Interpreting residual plots from linear regression can be difficult tolearn because it is more of an art than a skill. Let’s walk through someexamples where we generate data that violates an assumptio">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/correct_assumptions_lm-1.png">
+<meta property="og:image" content="http://example.com/images/correct_assumptions_resid-1.png">
+<meta property="og:image" content="http://example.com/images/uneq_var-1.png">
+<meta property="og:image" content="http://example.com/images/uneq_var_resid-1.png">
+<meta property="og:image" content="http://example.com/images/unif_err-1.png">
+<meta property="og:image" content="http://example.com/images/unif_err_resid-1.png">
+<meta property="og:image" content="http://example.com/images/binom_err-1.png">
+<meta property="og:image" content="http://example.com/images/binom_err_resid-1.png">
+<meta property="og:image" content="http://example.com/images/dependent-1.png">
+<meta property="og:image" content="http://example.com/images/dependent_resid-1.png">
+<meta property="og:image" content="http://example.com/images/non_lin-1.png">
+<meta property="og:image" content="http://example.com/images/non_lin_resid-1.png">
+<meta property="article:published_time" content="2023-05-12T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-15T01:06:15.188Z">
+<meta property="article:author" content="Ryan Yee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/correct_assumptions_lm-1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/uw-crest-favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/uw-crest-android-chrome-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/uw-crest-apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Interpreting Residual Plots</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+    <div class="content index py4 ">
+        
+          <header id="header">
+  <a class="u-url u-uid" href="/">
+  
+    
+      <img id="logo" alt class="u-logo" src="/images/ryanyee_headshot.png" />
+    
+  
+    <div id="title">
+      <h1 class="p-name">Ryan Yee</h1>
+    </div>
+  </a>
+  <div id="nav">
+    <ul>
+      <li class="icon">
+        <a href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-2x"></i></a>
+      </li>
+      <!--
+     --><li><a href="/">Home</a></li><!--
+   --><!--
+     --><li><a href="/about/">About</a></li><!--
+   --><!--
+     --><li><a href="/research/">Research</a></li><!--
+   --><!--
+     --><li><a href="/teaching/">Teaching</a></li><!--
+   --><!--
+     --><li><a target="_blank" rel="noopener" href="http://github.com/ryanyee3">Software</a></li><!--
+   -->
+    </ul>
+  </div>
+</header>
+
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  
+
+  <div class="content" itemprop="articleBody">
+      
+          <p>Interpreting residual plots from linear regression can be difficult to<br>learn because it is more of an art than a skill. Let’s walk through some<br>examples where we generate data that violates an assumption in linear<br>regression and see what the residual plots look like. By then end, we<br>should have an idea of the common residual patterns to look for and what<br>assumptions they might violate.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>tidyverse<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>modelr<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>We often refer to residual plots to check that our assumptions are<br>reasonable when performing linear regression. First, let’s look at an<br>example where all of our assumptions are met, so we have a baseline for<br>comparison.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define some plotting functions</span></span><br><span class="line"></span><br><span class="line">plot_lm <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span></span><br><span class="line">    data <span class="operator">%&gt;%</span></span><br><span class="line">      ggplot<span class="punctuation">(</span>aes<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">      geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">      geom_smooth<span class="punctuation">(</span>method <span class="operator">=</span> <span class="string">&quot;lm&quot;</span><span class="punctuation">,</span> se <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> formula <span class="operator">=</span> <span class="string">&quot;y ~ x&quot;</span><span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">plot_resid <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span></span><br><span class="line">    data <span class="operator">%&gt;%</span></span><br><span class="line">      ggplot<span class="punctuation">(</span>aes<span class="punctuation">(</span>x<span class="punctuation">,</span> resid<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">      geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">      geom_hline<span class="punctuation">(</span>yintercept <span class="operator">=</span> <span class="number">0</span><span class="punctuation">,</span> color <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">,</span> linetype <span class="operator">=</span> <span class="string">&quot;dashed&quot;</span><span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># draw x&#x27;s uniformally over interval [0, 10]</span></span><br><span class="line">x <span class="operator">=</span> runif<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">,</span> <span class="built_in">min</span> <span class="operator">=</span> <span class="number">0</span><span class="punctuation">,</span> <span class="built_in">max</span> <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># assign y&#x27;s as linear function of x&#x27;s with some noise that depends on the value of x</span></span><br><span class="line">y <span class="operator">=</span> x <span class="operator">+</span> rnorm<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">correct_assumptions <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span></span><br><span class="line">plot_lm<span class="punctuation">(</span>correct_assumptions<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/correct_assumptions_lm-1.png"><!-- --></p>
+<p>In this example, all of our assumptions are met: the observations are<br>independent, the relationship between the variables is linear, the error<br>follows a normal distribution and the error has the same variance for<br>each observation. Let’s see what the residual plot looks like.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">correct_assumptions_lm <span class="operator">=</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> correct_assumptions<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">correct_assumptions <span class="operator">%&gt;%</span></span><br><span class="line">  add_residuals<span class="punctuation">(</span>correct_assumptions_lm<span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  plot_resid<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/correct_assumptions_resid-1.png"><!-- --></p>
+<p>Next, we will demonstrate what residuals look like when these<br>assumptions are not met.</p>
+<h1 id="Equal-Variance"><a href="#Equal-Variance" class="headerlink" title="Equal Variance"></a>Equal Variance</h1><p>Let’s create some data where the equal variance assumption is violated.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># draw x&#x27;s uniformally over interval [0, 10]</span></span><br><span class="line">x <span class="operator">=</span> runif<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">,</span> <span class="built_in">min</span> <span class="operator">=</span> <span class="number">0</span><span class="punctuation">,</span> <span class="built_in">max</span> <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># assign y&#x27;s as linear function of x&#x27;s with some noise that depends on the value of x</span></span><br><span class="line">y <span class="operator">=</span> x <span class="operator">+</span> x<span class="operator">*</span>rnorm<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">uneq_var <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span></span><br><span class="line">plot_lm<span class="punctuation">(</span>uneq_var<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/uneq_var-1.png"><!-- --></p>
+<p>Now, we fit a linear model with this data and look at the residuals.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">uneq_var_lm <span class="operator">=</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> uneq_var<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">uneq_var <span class="operator">%&gt;%</span></span><br><span class="line">  add_residuals<span class="punctuation">(</span>uneq_var_lm<span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  plot_resid<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/uneq_var_resid-1.png"><!-- --></p>
+<p>We can clearly see that the residuals around $x&#x3D;0$ are much less<br>dispersed than the residuals around $x&#x3D;10$. When the equal variance<br>assumption is violated, we typically see a “funnel” shape to the<br>residuals.</p>
+<h1 id="Normal-Error"><a href="#Normal-Error" class="headerlink" title="Normal Error"></a>Normal Error</h1><p>Let’s create some data where the normal error assumption is violated.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># we will use the same x&#x27;s as before</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># assign y&#x27;s as linear function of x&#x27;s with uniform error</span></span><br><span class="line">y <span class="operator">=</span> x <span class="operator">+</span> runif<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">,</span> <span class="built_in">min</span> <span class="operator">=</span> <span class="operator">-</span><span class="number">5</span><span class="punctuation">,</span> <span class="built_in">max</span> <span class="operator">=</span> <span class="number">5</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">unif_err <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span></span><br><span class="line">plot_lm<span class="punctuation">(</span>unif_err<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/unif_err-1.png"><!-- --></p>
+<p>Now, we fit a linear model with this data and look at the residuals.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">unif_err_lm <span class="operator">=</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> unif_err<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">unif_err <span class="operator">%&gt;%</span></span><br><span class="line">  add_residuals<span class="punctuation">(</span>unif_err_lm<span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  plot_resid<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/unif_err_resid-1.png"><!-- --></p>
+<p>This is what the error looks like with uniform error. Let’s also look at<br>a more extreme example where we either have error 1 or -1.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># use the same x&#x27;s as before</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># assign y&#x27;s as linear function of x&#x27;s with error of -1 or 1</span></span><br><span class="line">y <span class="operator">=</span> x <span class="operator">+</span> rbinom<span class="punctuation">(</span><span class="number">10</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">.5</span><span class="punctuation">)</span> <span class="operator">*</span> <span class="number">2</span> <span class="operator">-</span><span class="number">1</span></span><br><span class="line"></span><br><span class="line">binom_err <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span></span><br><span class="line">plot_lm<span class="punctuation">(</span>binom_err<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/binom_err-1.png"><!-- --></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">binom_err_lm <span class="operator">=</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> binom_err<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">binom_err <span class="operator">%&gt;%</span></span><br><span class="line">  add_residuals<span class="punctuation">(</span>binom_err_lm<span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  plot_resid<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/binom_err_resid-1.png"><!-- --></p>
+<p>Now we can see the error is definitely not normally distributed. If it<br>were, there would be more observations close to 0.</p>
+<h1 id="Independence"><a href="#Independence" class="headerlink" title="Independence"></a>Independence</h1><p>It is not always possible to determine if the independence assumption<br>isn’t met by looking at residual plots. However, we will show one<br>example where we can.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create some normal error</span></span><br><span class="line">error <span class="operator">=</span> rnorm<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create data frame where we add normal error to x&#x27;s</span></span><br><span class="line">add_error <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y <span class="operator">=</span> x <span class="operator">+</span> error<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create data frame where we subtract normal error to x&#x27;s</span></span><br><span class="line">subtract_error <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y <span class="operator">=</span> x <span class="operator">-</span> error<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># combine these data frames. Note that we used each x twice so we do not have independent observations</span></span><br><span class="line">dependent <span class="operator">=</span> bind_rows<span class="punctuation">(</span>add_error<span class="punctuation">,</span> subtract_error<span class="punctuation">)</span></span><br><span class="line">plot_lm<span class="punctuation">(</span>dependent<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/dependent-1.png"><!-- --></p>
+<p>Now let’s look at the residuals.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dependent_lm <span class="operator">=</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> dependent<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">dependent <span class="operator">%&gt;%</span></span><br><span class="line">  add_residuals<span class="punctuation">(</span>dependent_lm<span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  plot_resid<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/dependent_resid-1.png"><!-- --></p>
+<p>Note that the error is symmetrical about zero.</p>
+<h1 id="Nonlinearity"><a href="#Nonlinearity" class="headerlink" title="Nonlinearity"></a>Nonlinearity</h1><p>Finally, we’ll make some data where the relationship is not linear.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># use the same x&#x27;s as before</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># assign y&#x27;s as quadratic function of x&#x27;s with normal error</span></span><br><span class="line">y <span class="operator">=</span> x<span class="operator">^</span><span class="number">2</span> <span class="operator">+</span> rnorm<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">non_lin <span class="operator">=</span> tibble<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span></span><br><span class="line">plot_lm<span class="punctuation">(</span>non_lin<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/non_lin-1.png"><!-- --></p>
+<p>Now let’s look at the residuals.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">non_lin_lm <span class="operator">=</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> non_lin<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">non_lin <span class="operator">%&gt;%</span></span><br><span class="line">  add_residuals<span class="punctuation">(</span>non_lin_lm<span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  plot_resid<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/non_lin_resid-1.png"><!-- --></p>
+<p>As we can see, the residuals follow a very clear quadratic pattern.</p>
+
+        
+  </div>
+</article>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023
+    Ryan Yee
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/research/">Research</a></li><!--
+     --><!--
+       --><li><a href="/teaching/">Teaching</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ryanyee3">Software</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    <!-- jquery -->
+
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

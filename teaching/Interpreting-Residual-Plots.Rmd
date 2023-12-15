@@ -1,0 +1,216 @@
+---
+title: "Interpreting Residual Plots"
+author: "Ryan Yee"
+date: "2023-05-12"
+output: 
+  md_document:
+    variant: gfm
+    preserve_yaml: true
+toc: true
+toc_label: "Contents"
+toc_icon: "fas fa-sitemap"
+toc_sticky: true
+collection: teaching
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE)
+knitr::opts_knit$set(base.dir = "/Users/rtyee/Documents/projects/cactus_website/test/public/teaching/", base.url = "/")
+file.remove(dir( path = "../images/", full.names = TRUE ))
+knitr::opts_chunk$set(fig.path = "../images/")
+ggplot2::theme_set(ggplot2::theme_minimal())
+```
+
+Interpreting residual plots from linear regression can be difficult to learn because it is more of an art than a skill.
+Let's walk through some examples where we generate data that violates an assumption in linear regression and see what the residual plots look like.
+By then end, we should have an idea of the common residual patterns to look for and what assumptions they might violate.
+
+```{r}
+library(tidyverse)
+library(modelr)
+```
+
+# Introduction
+
+We often refer to residual plots to check that our assumptions are reasonable when performing linear regression.
+First, let's look at an example where all of our assumptions are met, so we have a baseline for comparison.
+
+```{r}
+# define some plotting functions
+
+plot_lm = function(data) {
+  return(
+    data %>%
+      ggplot(aes(x, y)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = FALSE, formula = "y ~ x")
+  )
+}
+
+plot_resid = function(data) {
+  return(
+    data %>%
+      ggplot(aes(x, resid)) +
+      geom_point() +
+      geom_hline(yintercept = 0, color = "red", linetype = "dashed")
+  )
+}
+```
+
+```{r correct_assumptions_lm}
+# draw x's uniformally over interval [0, 10]
+x = runif(100, min = 0, max = 10)
+
+# assign y's as linear function of x's with some noise that depends on the value of x
+y = x + rnorm(100)
+
+correct_assumptions = tibble(x, y)
+plot_lm(correct_assumptions)
+```
+
+In this example, all of our assumptions are met: the observations are independent, the relationship between the variables is linear, the error follows a normal distribution and the error has the same variance for each observation.
+Let's see what the residual plot looks like.
+
+```{r correct_assumptions_resid}
+correct_assumptions_lm = lm(y ~ x, data = correct_assumptions)
+
+correct_assumptions %>%
+  add_residuals(correct_assumptions_lm) %>%
+  plot_resid()
+```
+
+Next, we will demonstrate what residuals look like when these assumptions are not met.
+
+# Equal Variance
+
+Let's create some data where the equal variance assumption is violated.
+
+```{r uneq_var}
+# draw x's uniformally over interval [0, 10]
+x = runif(100, min = 0, max = 10)
+
+# assign y's as linear function of x's with some noise that depends on the value of x
+y = x + x*rnorm(100)
+
+uneq_var = tibble(x, y)
+plot_lm(uneq_var)
+```
+
+Now, we fit a linear model with this data and look at the residuals.
+
+```{r uneq_var_resid}
+uneq_var_lm = lm(y ~ x, data = uneq_var)
+
+uneq_var %>%
+  add_residuals(uneq_var_lm) %>%
+  plot_resid()
+```
+
+We can clearly see that the residuals around $x=0$ are much less dispersed than the residuals around $x=10$.
+When the equal variance assumption is violated, we typically see a "funnel" shape to the residuals.
+
+# Normal Error
+
+Let's create some data where the normal error assumption is violated.
+
+```{r unif_err}
+# we will use the same x's as before
+
+# assign y's as linear function of x's with uniform error
+y = x + runif(100, min = -5, max = 5)
+
+unif_err = tibble(x, y)
+plot_lm(unif_err)
+```
+
+Now, we fit a linear model with this data and look at the residuals.
+
+```{r unif_err_resid}
+unif_err_lm = lm(y ~ x, data = unif_err)
+
+unif_err %>%
+  add_residuals(unif_err_lm) %>%
+  plot_resid()
+```
+
+This is what the error looks like with uniform error.
+Let's also look at a more extreme example where we either have error 1 or -1.
+
+```{r binom_err}
+# use the same x's as before
+
+# assign y's as linear function of x's with error of -1 or 1
+y = x + rbinom(10, 1, .5) * 2 -1
+
+binom_err = tibble(x, y)
+plot_lm(binom_err)
+```
+
+```{r binom_err_resid}
+binom_err_lm = lm(y ~ x, data = binom_err)
+
+binom_err %>%
+  add_residuals(binom_err_lm) %>%
+  plot_resid()
+```
+
+Now we can see the error is definitely not normally distributed.
+If it were, there would be more observations close to 0.
+
+# Independence
+
+It is not always possible to determine if the independence assumption isn't met by looking at residual plots.
+However, we will show one example where we can.
+
+```{r dependent}
+# create some normal error
+error = rnorm(100)
+
+# create data frame where we add normal error to x's
+add_error = tibble(x, y = x + error)
+
+# create data frame where we subtract normal error to x's
+subtract_error = tibble(x, y = x - error)
+
+# combine these data frames. Note that we used each x twice so we do not have independent observations
+dependent = bind_rows(add_error, subtract_error)
+plot_lm(dependent)
+```
+
+Now let's look at the residuals.
+
+```{r dependent_resid}
+dependent_lm = lm(y ~ x, data = dependent)
+
+dependent %>%
+  add_residuals(dependent_lm) %>%
+  plot_resid()
+```
+
+Note that the error is symmetrical about zero.
+
+# Nonlinearity
+
+Finally, we'll make some data where the relationship is not linear.
+
+```{r non_lin}
+# use the same x's as before
+
+# assign y's as quadratic function of x's with normal error
+y = x^2 + rnorm(100)
+
+non_lin = tibble(x, y)
+plot_lm(non_lin)
+```
+
+Now let's look at the residuals.
+
+```{r non_lin_resid}
+non_lin_lm = lm(y ~ x, data = non_lin)
+
+non_lin %>%
+  add_residuals(non_lin_lm) %>%
+  plot_resid()
+```
+
+As we can see, the residuals follow a very clear quadratic pattern.
