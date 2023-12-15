@@ -23,7 +23,7 @@ ggplot2::theme_set(ggplot2::theme_minimal())
 
 Interpreting residual plots from linear regression can be difficult to learn because it is more of an art than a skill.
 Let's walk through some examples where we generate data that violates an assumption in linear regression and see what the residual plots look like.
-By then end, we should have an idea of the common residual patterns to look for and what assumptions they might violate.
+By the end, we should have an idea of the common residual patterns to look for and what assumptions they might violate.
 
 ```{r}
 library(tidyverse)
